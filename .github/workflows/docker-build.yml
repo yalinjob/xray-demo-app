@@ -1,0 +1,42 @@
+name: build-and-push-to-jfrog
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  JF_HOST: solenglatest.jfrog.io
+  JF_REPO: yalin-demo-xray-local
+  IMAGE_NAME: xray-demo-app
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Log in to JFrog Artifactory
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.JF_HOST }}
+          username: ${{ secrets.JF_USER }}
+          password: ${{ secrets.JF_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          build-args: APP_VERSION=${{ github.sha }}
+          tags: |
+            ${{ env.JF_HOST }}/${{ env.JF_REPO }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+            ${{ env.JF_HOST }}/${{ env.JF_REPO }}/${{ env.IMAGE_NAME }}:latest
+
+      - name: Summary
+        run: |
+          echo "Pushed ${JF_HOST}/${JF_REPO}/${IMAGE_NAME}:${GITHUB_SHA}" >> "$GITHUB_STEP_SUMMARY"

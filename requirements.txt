@@ -1,0 +1,14 @@
+# INTENTIONALLY OUTDATED / VULNERABLE pins - demo for JFrog Xray scanning. Do not use in production.
+Flask==2.0.1            # CVE-2023-30861 (high)
+Werkzeug==2.0.1         # CVE-2023-25577 (high), CVE-2024-34069 (high), CVE-2023-23934 (low)
+Jinja2==3.0.1           # CVE-2024-22195 (medium), CVE-2024-34064 (medium), CVE-2024-56326 (high)
+MarkupSafe==2.0.1
+itsdangerous==2.0.1
+click==8.0.1
+requests==2.19.1        # CVE-2018-18074 (high), CVE-2023-32681 (medium)
+urllib3==1.23           # CVE-2019-11324 (high), CVE-2018-20060 (medium), CVE-2019-11236 (medium)
+idna==2.7               # CVE-2024-3651 (medium)
+chardet==3.0.4
+certifi==2020.12.5      # CVE-2022-23491 (medium), CVE-2023-37920 (high)
+cryptography==3.3.2     # CVE-2023-23931 (medium), CVE-2023-49083 (high)
+gunicorn==20.0.4        # CVE-2024-1135 (high)
