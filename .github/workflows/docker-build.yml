@@ -53,6 +53,7 @@ jobs:
 
       - name: Xray scan of the Docker image (pre-push)
         run: |
+          set -o pipefail
           # Vulnerabilities are expected in this demo, so report without failing the job.
           jf docker scan "${IMAGE}:${GITHUB_SHA}" --vuln --fail=false --extended-table | tee xray-image-scan.txt
           {
@@ -62,10 +63,25 @@ jobs:
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Push image and record build-info
+      - name: Push image
+        id: push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          provenance: false # keep a plain image manifest so build-info can resolve the layers
+          sbom: false
+          build-args: APP_VERSION=${{ github.sha }}
+          tags: |
+            ${{ env.IMAGE }}:${{ github.sha }}
+            ${{ env.IMAGE }}:latest
+
+      # jf docker push could not match layers in Artifactory, so attach the pushed image to the build explicitly.
+      - name: Record Docker image in build-info
         run: |
-          jf docker push "${IMAGE}:${GITHUB_SHA}" --build-name="$BUILD_NAME" --build-number="$BUILD_NUMBER"
-          jf docker push "${IMAGE}:latest"        --build-name="$BUILD_NAME" --build-number="$BUILD_NUMBER"
+          echo "${IMAGE}:${GITHUB_SHA}@${{ steps.push.outputs.digest }}" > image-file
+          cat image-file
+          jf rt build-docker-create "$JF_REPO" --image-file image-file --build-name="$BUILD_NAME" --build-number="$BUILD_NUMBER"
 
       - name: Publish build-info
         run: |
@@ -75,6 +91,7 @@ jobs:
 
       - name: Xray build scan
         run: |
+          set -o pipefail
           jf build-scan "$BUILD_NAME" "$BUILD_NUMBER" --vuln --fail=false --extended-table | tee xray-build-scan.txt
           {
             echo "### Xray build scan: ${BUILD_NAME} #${BUILD_NUMBER}"
