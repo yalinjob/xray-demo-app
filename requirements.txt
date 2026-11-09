@@ -12,3 +12,9 @@ chardet==3.0.4
 certifi==2020.12.5      # CVE-2022-23491 (medium), CVE-2023-37920 (high)
 cryptography==3.3.2     # CVE-2023-23931 (medium), CVE-2023-49083 (high)
 gunicorn==20.0.4        # CVE-2024-1135 (high)
+
+# Added in v1.1.0: extra packages with known high-severity CVEs (verify exact IDs/severity in Xray)
+Pillow==9.0.0           # e.g. CVE-2022-45198, CVE-2023-44271, CVE-2023-50447 (high)
+PyJWT==1.7.1            # CVE-2022-29217 (high)
+lxml==4.6.2             # CVE-2021-43818 (high), CVE-2022-2309 (high), CVE-2021-28957 (medium)
+aiohttp==3.8.0          # CVE-2023-37276 (high), CVE-2024-23334 (high), CVE-2023-47627 (medium)
